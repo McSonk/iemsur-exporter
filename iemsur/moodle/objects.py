@@ -52,7 +52,8 @@ class Exam:
         return content
     
     def sort(self):
-        self.questions.sort(key=lambda x: x.number)
+        if self.questions[0].number is not None:
+            self.questions.sort(key=lambda x: x.number)
 
     def __str__(self):
         return f'Exam. Questions: {len(self.questions)}'
