@@ -1,5 +1,5 @@
 import logging
-from iemsur.moodle.wrappers import ExamReader
+from iemsur.moodle.wrappers import ExamReader, ExamWriter
 
 logging.getLogger('pypandoc').addHandler(logging.NullHandler())
 logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
@@ -12,3 +12,6 @@ if __name__ == '__main__':
     reader = ExamReader()
     reader.read('preguntas-radiologia.xml')
     logger.info(reader.exam)
+
+    writer = ExamWriter(reader.exam)
+    writer.write('test.docx')
