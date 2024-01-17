@@ -8,14 +8,11 @@ logging.getLogger('pypandoc').addHandler(logging.NullHandler())
 logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+class ExamReader:
+    def __init__(self):
+        self.exam = None
 
-if __name__ == '__main__':
-    logger.info('opening the file...')
-    xml = ET.parse('preguntas-radiologia.xml')
-    quiz = xml.getroot()
-    exam = Exam()
-
-    for question in quiz:
+    def __analyse_question__(self, question):
         q_obj = Question()
         q_obj.type =  question.attrib['type']
         q_obj.number = question.find('name').find('text').text
@@ -40,7 +37,20 @@ if __name__ == '__main__':
                 q_obj.add_option(opt)
         else:
             logger.warning(f'Unknown type: {q_obj.type}')
-        exam.add_question(q_obj)
+        self.exam.add_question(q_obj)
 
-    logger.info(exam)
-    logger.debug(exam.print())
+
+    def read(self, file_name):
+        xml = ET.parse(file_name)
+        quiz = xml.getroot()
+        self.exam = Exam()
+
+        for question in quiz:
+            self.__analyse_question__(question)
+
+if __name__ == '__main__':
+    logger.info('opening the file...')
+
+    reader = ExamReader()
+    reader.read('preguntas-radiologia.xml')
+    logger.info(reader.exam)
