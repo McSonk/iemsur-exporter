@@ -1,8 +1,10 @@
 # pip install python-docx
+# pip install markdownify
 
 import logging
 
 import xml.etree.ElementTree as ET
+from markdownify import markdownify as md
 
 from iemsur.moodle.objects import Exam, Question, Option, File
 
@@ -19,7 +21,9 @@ class ExamReader:
     def __analyse_question__(self, question):
         q_obj = Question()
         q_obj.type =  question.attrib['type']
-        q_obj.number = int(question.find('name').find('text').text)
+        num = question.find('name').find('text').text
+        if num != '.':
+            q_obj.number = int(num)
 
         q_text = question.find('questiontext')
         q_obj.desc = q_text.find('text').text
@@ -62,13 +66,13 @@ class ExamWriter:
         self.exam.sort()
 
         for question in self.exam.questions:
-            title = document.add_paragraph(question.desc, style='List Number')
+            document.add_paragraph(md(question.desc, strip=['p']), style='List Number')
             if question.is_true_false():
                 document.add_paragraph('', style='List Bullet 2').add_run('Verdadero').bold = question.tf_value
                 document.add_paragraph('', style='List Bullet 2').add_run('Falso').bold = not question.tf_value
             elif question.is_multiple_choice():
                 for option in question.options:
-                    document.add_paragraph('', style='List Bullet 2').add_run(option.option).bold = option.correct
+                    document.add_paragraph('', style='List Bullet 2').add_run(md(option.option, strip=['p'])).bold = option.correct
 
 
         document.save(file_name)
