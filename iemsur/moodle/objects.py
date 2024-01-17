@@ -50,6 +50,9 @@ class Exam:
             content += str(question)
             content += '\n***\n'
         return content
+    
+    def sort(self):
+        self.questions.sort(key=lambda x: x.number)
 
     def __str__(self):
         return f'Exam. Questions: {len(self.questions)}'
