@@ -4,7 +4,11 @@
 import logging
 
 import xml.etree.ElementTree as ET
+
+from pickle import load
+import base64
 from markdownify import markdownify as md
+from io import BytesIO
 
 from iemsur.moodle.objects import Exam, Question, Option, File
 
@@ -67,6 +71,11 @@ class ExamWriter:
 
         for question in self.exam.questions:
             document.add_paragraph(md(question.desc, strip=['p']), style='List Number')
+            if question.file is not None:
+                logger.debug('file detected!')
+                img = base64.b64decode(question.file.content)
+                file = BytesIO(img)
+                document.add_picture(file)
             if question.is_true_false():
                 document.add_paragraph('', style='List Bullet 2').add_run('Verdadero').bold = question.tf_value
                 document.add_paragraph('', style='List Bullet 2').add_run('Falso').bold = not question.tf_value
