@@ -66,6 +66,9 @@ class ExamWriter:
             if question.is_true_false():
                 document.add_paragraph('', style='List Bullet 2').add_run('Verdadero').bold = question.tf_value
                 document.add_paragraph('', style='List Bullet 2').add_run('Falso').bold = not question.tf_value
+            elif question.is_multiple_choice():
+                for option in question.options:
+                    document.add_paragraph('', style='List Bullet 2').add_run(option.option).bold = option.correct
 
 
         document.save(file_name)
