@@ -26,7 +26,7 @@ class ExamReader:
         q_obj = Question()
         q_obj.type =  question.attrib['type']
         num = question.find('name').find('text').text
-        if num != '.':
+        if num != '.' and num != '. ' and num != 'IM1':
             q_obj.number = int(num)
 
         q_text = question.find('questiontext')
@@ -47,8 +47,17 @@ class ExamReader:
                 opt = Option(answer.find('text').text)
                 opt.correct = answer.attrib['fraction'] == '100'
                 q_obj.add_option(opt)
+        elif q_obj.is_drag_box():
+            # Number of blank spaces: [[n]]
+            blanks = q_obj.desc.count('[[')
+            for i, option in enumerate(question.findall('dragbox')):
+                opt = Option(option.find('text').text)
+                # Just the first i elements are correct
+                opt.correct = i < blanks
+                q_obj.add_option(opt)
         else:
             logger.warning(f'Unknown type: {q_obj.type}')
+            logger.debug(q_obj)
         self.exam.add_question(q_obj)
 
     def read(self, file_name):
@@ -79,7 +88,7 @@ class ExamWriter:
             if question.is_true_false():
                 document.add_paragraph('', style='List Bullet 2').add_run('Verdadero').bold = question.tf_value
                 document.add_paragraph('', style='List Bullet 2').add_run('Falso').bold = not question.tf_value
-            elif question.is_multiple_choice():
+            elif question.is_multiple_choice() or question.is_drag_box():
                 for option in question.options:
                     document.add_paragraph('', style='List Bullet 2').add_run(md(option.option, strip=['p'])).bold = option.correct
 

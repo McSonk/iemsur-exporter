@@ -30,6 +30,9 @@ class Question:
 
     def is_multiple_choice(self):
         return self.type == 'multichoice'
+    
+    def is_drag_box(self):
+        return self.type == 'ddwtos'
 
     def add_option(self, option):
         self.options.append(option)
