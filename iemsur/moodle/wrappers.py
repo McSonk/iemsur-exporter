@@ -55,6 +55,17 @@ class ExamReader:
                 # Just the first i elements are correct
                 opt.correct = i < blanks
                 q_obj.add_option(opt)
+        elif q_obj.is_matching():
+            for option in question.findall('subquestion'):
+                opt = Option(option.find('text').text)
+                opt.match_value = option.find('answer').find('text').text
+                file = option.find('file')
+                if file is not None:
+                    opt.file = File()
+                    opt.file.name = file.attrib['name']
+                    opt.file.encoding = file.attrib['encoding']
+                    opt.file.content = file.text
+                q_obj.add_option(opt)
         else:
             logger.warning(f'Unknown type: {q_obj.type}')
             logger.debug(q_obj)
@@ -91,6 +102,17 @@ class ExamWriter:
             elif question.is_multiple_choice() or question.is_drag_box():
                 for option in question.options:
                     document.add_paragraph('', style='List Bullet 2').add_run(md(option.option, strip=['p'])).bold = option.correct
+            elif question.is_matching():
+                table = document.add_table(rows=0, cols=2)
+                for option in question.options:
+                    cells = table.add_row().cells
+                    cells[0].text = md(option.option, strip=['p'])
+                    if option.file is not None:
+                        logger.debug('file detected!')
+                        img = base64.b64decode(option.file.content)
+                        file = BytesIO(img)
+                        cells[0].paragraphs[0].add_run().add_picture(file)
+                    cells[1].text = option.match_value
 
 
         document.save(file_name)

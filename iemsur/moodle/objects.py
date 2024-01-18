@@ -11,6 +11,9 @@ class Option:
     def __init__(self, option, correct=False):
         self.option = option
         self.correct = correct
+        self.file = None
+        '''For matching options'''
+        self.match_value = None
 
     def __str__(self):
         return f'Option[option={self.option}, correct={self.correct}]'
@@ -33,6 +36,9 @@ class Question:
     
     def is_drag_box(self):
         return self.type == 'ddwtos'
+    
+    def is_matching(self):
+        return self.type == 'matching'
 
     def add_option(self, option):
         self.options.append(option)
